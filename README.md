@@ -163,7 +163,17 @@ grocery-tracker/
    - "📦 In Stock" = Active item
    - "✓ Finished" = Consumed/Disposed item
 
-## 💡 Tips
+## � Screenshots
+
+### Dashboard Overview
+![Grocery Tracker Dashboard](screenshots/dashboard.png)
+*Main dashboard showing pie charts for spending analysis by category and subcategory, grocery form for adding new items, and sorting controls*
+
+### Header & Alerts Section
+![Grocery Tracker Header and Alerts](screenshots/header-alerts.png)
+*Beautiful header with emoji decorations, summary cards showing total items and total spent, and expired items alert with remove buttons*
+
+## �💡 Tips
 
 - Items marked as "Finished" don't appear in expiry alerts
 - All finished items remain in the database for history
