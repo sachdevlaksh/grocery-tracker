@@ -163,15 +163,15 @@ grocery-tracker/
    - "📦 In Stock" = Active item
    - "✓ Finished" = Consumed/Disposed item
 
-## � Screenshots
-
 ### Dashboard with Analytics and Grocery Form
-![Grocery Tracker Dashboard](screenshots/dashboard.png)
-*Shows pie charts for spending by category and subcategory, grocery form for adding items, and the data table*
+![Dashboard](./screenshots/dashboard.png)
+
+Shows pie charts for spending by category and subcategory, grocery form for adding items, and the data table.
 
 ### Header and Alerts Section
-![Grocery Tracker Header and Alerts](screenshots/header-alerts.png)
-*Beautiful gradient header with emoji decorations, summary cards, and smart alerts for expired items*
+![Header and Alerts](./screenshots/header-alerts.png)
+
+Beautiful gradient header with emoji decorations, summary cards showing total items and total spent, and smart alerts for expired items with remove buttons.
 
 ## �💡 Tips
 
