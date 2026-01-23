@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import { initialGroceries } from "./data/groceryData";
 import GroceryForm from "./components/GroceryForm";
 import GroceryDashboard from "./components/GroceryDashboard";
@@ -12,6 +13,14 @@ function App() {
     setGroceries([...groceries, grocery]);
   };
 
+  const deleteGrocery = (id) => {
+    setGroceries(
+      groceries.map((item) =>
+        item.id === id ? { ...item, finished: "yes" } : item
+      )
+    );
+  };
+
   const sortedGroceries = [...groceries].sort((a, b) =>
     sortOrder === "desc"
       ? new Date(b.date) - new Date(a.date)
@@ -23,11 +32,56 @@ function App() {
     0
   );
 
+  const spendByCategory = groceries.reduce((acc, g) => {
+    const category = g.category || "Uncategorized";
+    acc[category] = (acc[category] || 0) + Number(g.price);
+    return acc;
+  }, {});
+
+  const spendBySubcategory = groceries.reduce((acc, g) => {
+    const subcategory = g.subcategory || "Uncategorized";
+    acc[subcategory] = (acc[subcategory] || 0) + Number(g.price);
+    return acc;
+  }, {});
+
+  const categoryData = Object.entries(spendByCategory).map(([name, value]) => ({
+    name,
+    value: Number(value),
+  }));
+
+  const subcategoryData = Object.entries(spendBySubcategory).map(([name, value]) => ({
+    name,
+    value: Number(value),
+  }));
+
+  const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const expiredItems = groceries.filter((g) => {
+    const expiryDate = new Date(g.expiry);
+    expiryDate.setHours(0, 0, 0, 0);
+    return expiryDate < today && g.finished === "no";
+  });
+
+  const closToExpireItems = groceries.filter((g) => {
+    const expiryDate = new Date(g.expiry);
+    expiryDate.setHours(0, 0, 0, 0);
+    const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+    return daysUntilExpiry > 0 && daysUntilExpiry <= 7 && g.finished === "no";
+  });
+
+
   return (
     <div className="app">
       <header className="header">
-        <h1>🛒 Grocery Tracker</h1>
-        <p>Track your daily grocery purchases</p>
+        <div className="header-content">
+          <div className="header-icons">🥬 🥕 🍎 🥛</div>
+          <h1>🛒 Grocery Tracker</h1>
+          <p>Track your daily grocery purchases</p>
+          <div className="header-icons">🧅 🥔 🍞 🎯</div>
+        </div>
       </header>
 
       <div className="summary">
@@ -37,7 +91,96 @@ function App() {
         </div>
         <div className="card">
           <h3>Total Spent</h3>
-          <p>${totalSpent}</p>
+          <p>₹{totalSpent}</p>
+        </div>
+      </div>
+
+      {expiredItems.length > 0 && (
+        <div className="alert alert-danger">
+          <h3>🚨 Expired Items ({expiredItems.length})</h3>
+          <ul>
+            {expiredItems.map((item) => (
+              <li key={item.id} className="alert-item">
+                <span>
+                  <strong>{item.name}</strong> - Expired on {new Date(item.expiry).toLocaleDateString()}
+                </span>
+                <button 
+                  className="delete-btn"
+                  onClick={() => deleteGrocery(item.id)}
+                  title="Remove this item"
+                >
+                  🗑️ Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {closToExpireItems.length > 0 && (
+        <div className="alert alert-warning">
+          <h3>⚠️ Close to Expire ({closToExpireItems.length})</h3>
+          <ul>
+            {closToExpireItems.map((item) => {
+              const expiryDate = new Date(item.expiry);
+              const today = new Date();
+              const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+              return (
+                <li key={item.id}>
+                  <strong>{item.name}</strong> - Expires in {daysLeft} day{daysLeft > 1 ? 's' : ''} ({expiryDate.toLocaleDateString()})
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      <div className="charts-section">
+        <div className="chart-container">
+          <h3>Spend by Category</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={categoryData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, value }) => `${name}: ₹${value}`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {categoryData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => `₹${value}`} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="chart-container">
+          <h3>Spend by Subcategory</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={subcategoryData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, value }) => `${name}: ₹${value}`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {subcategoryData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => `₹${value}`} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
@@ -52,6 +195,10 @@ function App() {
       </div>
 
       <GroceryDashboard groceries={sortedGroceries} />
+
+      <footer className="footer">
+        <p>&copy; 2026 Grocery Tracker. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
