@@ -165,23 +165,13 @@ grocery-tracker/
 
 ## � Screenshots
 
-### Dashboard Overview
-Shows the pie charts for spending analysis by category and subcategory, grocery form for adding new items, and sorting controls.
+### Dashboard with Analytics and Grocery Form
+![Grocery Tracker Dashboard](screenshots/dashboard.png)
+*Shows pie charts for spending by category and subcategory, grocery form for adding items, and the data table*
 
-**To add this screenshot:**
-1. Take a screenshot of your dashboard with the pie charts and form visible
-2. Save it as `dashboard.png` in the `screenshots/` folder
-3. The image will then display in GitHub
-
-### Header & Alerts Section
-Beautiful header with emoji decorations, summary cards showing total items and total spent, and expired items alert with remove buttons.
-
-**To add this screenshot:**
-1. Take a screenshot of the header and alerts section
-2. Save it as `header-alerts.png` in the `screenshots/` folder
-3. The image will then display in GitHub
-
-Once you add the screenshots to the `screenshots/` folder, they will automatically display in the GitHub repository.
+### Header and Alerts Section
+![Grocery Tracker Header and Alerts](screenshots/header-alerts.png)
+*Beautiful gradient header with emoji decorations, summary cards, and smart alerts for expired items*
 
 ## �💡 Tips
 
