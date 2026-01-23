@@ -164,12 +164,12 @@ grocery-tracker/
    - "✓ Finished" = Consumed/Disposed item
 
 ### Dashboard with Analytics and Grocery Form
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./screenshots/Capture1.PNG)
 
 Shows pie charts for spending by category and subcategory, grocery form for adding items, and the data table.
 
 ### Header and Alerts Section
-![Header and Alerts](./screenshots/header-alerts.png)
+![Header and Alerts](./screenshots/Capture2.PNG)
 
 Beautiful gradient header with emoji decorations, summary cards showing total items and total spent, and smart alerts for expired items with remove buttons.
 
