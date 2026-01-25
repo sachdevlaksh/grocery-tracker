@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
-const API_URL = process.env.REACT_APP_API_URL || "/api";
 import GroceryForm from "./components/GroceryForm";
 import GroceryDashboard from "./components/GroceryDashboard";
 import "./App.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "/api";
 
+function App() {
   const [groceries, setGroceries] = useState([]);
   const [useLocal, setUseLocal] = useState(false);
   const [sortOrder, setSortOrder] = useState("desc");
