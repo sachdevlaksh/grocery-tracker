@@ -1,6 +1,7 @@
-import { useState } from "react";
 
-function GroceryForm({ addGrocery }) {
+import { useState, useEffect } from "react";
+
+function GroceryForm({ addGrocery, editingGrocery, editGrocery, cancelEdit }) {
   const [form, setForm] = useState({
     name: "",
     category: "",
@@ -12,9 +13,30 @@ function GroceryForm({ addGrocery }) {
     finished: "no",
   });
 
+  useEffect(() => {
+    if (editingGrocery) {
+      setForm(editingGrocery);
+    } else {
+      setForm({
+        name: "",
+        category: "",
+        subcategory: "",
+        weight: "",
+        price: "",
+        date: "",
+        expiry: "",
+        finished: "no",
+      });
+    }
+  }, [editingGrocery]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    addGrocery({ id: Date.now(), ...form });
+    if (editingGrocery) {
+      editGrocery(form);
+    } else {
+      addGrocery({ id: Date.now(), ...form });
+    }
     setForm({ name: "", category: "", subcategory: "", weight: "", price: "", date: "", expiry: "", finished: "no" });
   };
 
@@ -34,7 +56,14 @@ function GroceryForm({ addGrocery }) {
         onChange={(e) => setForm({ ...form, date: e.target.value })} />
       <input type="date" placeholder="Expiry Date" value={form.expiry}
         onChange={(e) => setForm({ ...form, expiry: e.target.value })} />
-      <button>Add</button>
+      {editingGrocery ? (
+        <>
+          <button type="submit">Update</button>
+          <button type="button" onClick={cancelEdit}>Cancel</button>
+        </>
+      ) : (
+        <button type="submit">Add</button>
+      )}
     </form>
   );
 }

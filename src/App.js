@@ -5,20 +5,29 @@ import GroceryForm from "./components/GroceryForm";
 import GroceryDashboard from "./components/GroceryDashboard";
 import "./App.css";
 
+
 function App() {
   const [groceries, setGroceries] = useState(initialGroceries);
   const [sortOrder, setSortOrder] = useState("desc");
+  const [editingGrocery, setEditingGrocery] = useState(null);
 
   const addGrocery = (grocery) => {
     setGroceries([...groceries, grocery]);
   };
 
   const deleteGrocery = (id) => {
-    setGroceries(
-      groceries.map((item) =>
-        item.id === id ? { ...item, finished: "yes" } : item
-      )
-    );
+    setGroceries(groceries.filter((item) => item.id !== id));
+  };
+
+  const startEditGrocery = (grocery) => {
+    setEditingGrocery(grocery);
+  };
+
+  const editGrocery = (updatedGrocery) => {
+    setGroceries(groceries.map((item) =>
+      item.id === updatedGrocery.id ? updatedGrocery : item
+    ));
+    setEditingGrocery(null);
   };
 
   const sortedGroceries = [...groceries].sort((a, b) =>
@@ -184,17 +193,26 @@ function App() {
         </div>
       </div>
 
-      <GroceryForm addGrocery={addGrocery} />
+      <GroceryForm 
+        addGrocery={addGrocery} 
+        editingGrocery={editingGrocery}
+        editGrocery={editGrocery}
+        cancelEdit={() => setEditingGrocery(null)}
+      />
 
       <div className="controls">
         <label>Sort by date:</label>
-        <select onChange={(e) => setSortOrder(e.target.value)}>
+        <select onChange={(e) => setSortOrder(e.target.value)} value={sortOrder}>
           <option value="desc">Newest First</option>
           <option value="asc">Oldest First</option>
         </select>
       </div>
 
-      <GroceryDashboard groceries={sortedGroceries} />
+      <GroceryDashboard 
+        groceries={sortedGroceries} 
+        onDelete={deleteGrocery}
+        onEdit={startEditGrocery}
+      />
 
       <footer className="footer">
         <p>&copy; 2026 Grocery Tracker. All rights reserved.</p>
