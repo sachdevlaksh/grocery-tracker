@@ -1,40 +1,115 @@
 import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
-import { initialGroceries } from "./data/groceryData";
+const API_URL = process.env.REACT_APP_API_URL || "/api";
 import GroceryForm from "./components/GroceryForm";
 import GroceryDashboard from "./components/GroceryDashboard";
 import "./App.css";
 
 
-  const [groceries, setGroceries] = useState(() => {
-    const saved = localStorage.getItem("groceries");
-    return saved ? JSON.parse(saved) : initialGroceries;
-  });
+  const [groceries, setGroceries] = useState([]);
+  const [useLocal, setUseLocal] = useState(false);
   const [sortOrder, setSortOrder] = useState("desc");
   const [editingGrocery, setEditingGrocery] = useState(null);
 
-  const addGrocery = (grocery) => {
-    setGroceries((prev) => [...prev, grocery]);
+  // Fetch groceries from backend or localStorage
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${API_URL}/groceries`);
+        if (!res.ok) throw new Error("No backend");
+        const data = await res.json();
+        setGroceries(data);
+        setUseLocal(false);
+      } catch {
+        // fallback to localStorage
+        const saved = localStorage.getItem("groceries");
+        setGroceries(saved ? JSON.parse(saved) : []);
+        setUseLocal(true);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const addGrocery = async (grocery) => {
+    if (useLocal) {
+      const newGroceries = [...groceries, grocery];
+      setGroceries(newGroceries);
+      localStorage.setItem("groceries", JSON.stringify(newGroceries));
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/groceries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(grocery)
+      });
+      if (!res.ok) throw new Error();
+      const newGrocery = await res.json();
+      setGroceries((prev) => [...prev, newGrocery]);
+    } catch {
+      // fallback to localStorage
+      const newGroceries = [...groceries, grocery];
+      setGroceries(newGroceries);
+      localStorage.setItem("groceries", JSON.stringify(newGroceries));
+      setUseLocal(true);
+    }
   };
 
-  const deleteGrocery = (id) => {
-    setGroceries((prev) => prev.filter((item) => item.id !== id));
+  const deleteGrocery = async (id) => {
+    if (useLocal) {
+      const newGroceries = groceries.filter((item) => item.id !== id);
+      setGroceries(newGroceries);
+      localStorage.setItem("groceries", JSON.stringify(newGroceries));
+      return;
+    }
+    try {
+      await fetch(`${API_URL}/groceries/${id}`, { method: "DELETE" });
+      setGroceries((prev) => prev.filter((item) => item.id !== id));
+    } catch {
+      const newGroceries = groceries.filter((item) => item.id !== id);
+      setGroceries(newGroceries);
+      localStorage.setItem("groceries", JSON.stringify(newGroceries));
+      setUseLocal(true);
+    }
   };
 
   const startEditGrocery = (grocery) => {
     setEditingGrocery(grocery);
   };
 
-  const editGrocery = (updatedGrocery) => {
-    setGroceries((prev) => prev.map((item) =>
-      item.id === updatedGrocery.id ? updatedGrocery : item
-    ));
-    setEditingGrocery(null);
+  const editGrocery = async (updatedGrocery) => {
+    if (useLocal) {
+      const newGroceries = groceries.map((item) =>
+        item.id === updatedGrocery.id ? updatedGrocery : item
+      );
+      setGroceries(newGroceries);
+      localStorage.setItem("groceries", JSON.stringify(newGroceries));
+      setEditingGrocery(null);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/groceries/${updatedGrocery.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedGrocery)
+      });
+      if (!res.ok) throw new Error();
+      const saved = await res.json();
+      setGroceries((prev) => prev.map((item) =>
+        item.id === saved.id ? saved : item
+      ));
+      setEditingGrocery(null);
+    } catch {
+      const newGroceries = groceries.map((item) =>
+        item.id === updatedGrocery.id ? updatedGrocery : item
+      );
+      setGroceries(newGroceries);
+      localStorage.setItem("groceries", JSON.stringify(newGroceries));
+      setEditingGrocery(null);
+      setUseLocal(true);
+    }
   };
-  // Persist groceries to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("groceries", JSON.stringify(groceries));
-  }, [groceries]);
+
 
   const sortedGroceries = [...groceries].sort((a, b) =>
     sortOrder === "desc"
