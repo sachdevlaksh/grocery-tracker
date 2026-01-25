@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import { initialGroceries } from "./data/groceryData";
 import GroceryForm from "./components/GroceryForm";
@@ -6,17 +6,19 @@ import GroceryDashboard from "./components/GroceryDashboard";
 import "./App.css";
 
 
-function App() {
-  const [groceries, setGroceries] = useState(initialGroceries);
+  const [groceries, setGroceries] = useState(() => {
+    const saved = localStorage.getItem("groceries");
+    return saved ? JSON.parse(saved) : initialGroceries;
+  });
   const [sortOrder, setSortOrder] = useState("desc");
   const [editingGrocery, setEditingGrocery] = useState(null);
 
   const addGrocery = (grocery) => {
-    setGroceries([...groceries, grocery]);
+    setGroceries((prev) => [...prev, grocery]);
   };
 
   const deleteGrocery = (id) => {
-    setGroceries(groceries.filter((item) => item.id !== id));
+    setGroceries((prev) => prev.filter((item) => item.id !== id));
   };
 
   const startEditGrocery = (grocery) => {
@@ -24,11 +26,15 @@ function App() {
   };
 
   const editGrocery = (updatedGrocery) => {
-    setGroceries(groceries.map((item) =>
+    setGroceries((prev) => prev.map((item) =>
       item.id === updatedGrocery.id ? updatedGrocery : item
     ));
     setEditingGrocery(null);
   };
+  // Persist groceries to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("groceries", JSON.stringify(groceries));
+  }, [groceries]);
 
   const sortedGroceries = [...groceries].sort((a, b) =>
     sortOrder === "desc"
