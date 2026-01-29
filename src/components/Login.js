@@ -23,11 +23,7 @@ function Login({ onLogin }) {
       setError('');
       onLogin(username);
     } else {
-      // Signup
-      users[username] = password;
-      localStorage.setItem('groceryUsers', JSON.stringify(users));
-      setError('');
-      onLogin(username);
+      setError('User not approved yet. Please request access or wait for admin approval.');
     }
   };
 
