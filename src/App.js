@@ -92,7 +92,6 @@ function App() {
           </div>
         </header>
 
-        {/* ...existing dashboard code... */}
         <div className="summary">
           <div className="card">
             <h3>Total Items</h3>
@@ -110,6 +109,7 @@ function App() {
         {/* ...existing code... */}
       </div>
     );
+  }
 
   const addGrocery = async (grocery) => {
     if (useLocal) {
