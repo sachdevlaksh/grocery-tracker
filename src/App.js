@@ -47,7 +47,10 @@ function App() {
       if (!user) return;
       const fetchData = async () => {
         try {
-          const res = await fetch(`${API_URL}/groceries?user=${encodeURIComponent(user)}`);
+          const token = localStorage.getItem('groceryToken');
+          const res = await fetch(`${API_URL}/groceries?user=${encodeURIComponent(user)}`, {
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          });
           if (!res.ok) throw new Error("No backend");
           const data = await res.json();
           setGroceries(data);
@@ -76,9 +79,13 @@ function App() {
         return;
       }
       try {
+        const token = localStorage.getItem('groceryToken');
         const res = await fetch(`${API_URL}/groceries`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
           body: JSON.stringify({ ...grocery, user })
         });
         if (!res.ok) throw new Error();
@@ -107,7 +114,11 @@ function App() {
         return;
       }
       try {
-        await fetch(`${API_URL}/groceries/${id}`, { method: "DELETE" });
+        const token = localStorage.getItem('groceryToken');
+        await fetch(`${API_URL}/groceries/${id}`, {
+          method: "DELETE",
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
         setGroceries((prev) => prev.filter((item) => item.id !== id));
       } catch {
         const newGroceries = groceries.filter((item) => item.id !== id);
@@ -138,9 +149,13 @@ function App() {
         return;
       }
       try {
+        const token = localStorage.getItem('groceryToken');
         const res = await fetch(`${API_URL}/groceries/${updatedGrocery.id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
           body: JSON.stringify({ ...updatedGrocery, user })
         });
         if (!res.ok) throw new Error();
@@ -177,12 +192,6 @@ function App() {
       return (
         <div>
           <Login onLogin={(username) => {
-            // Only allow login if user is approved
-            const users = JSON.parse(localStorage.getItem('groceryUsers') || '{}');
-            if (!users[username]) {
-              alert('User not approved yet. Please request access or wait for admin approval.');
-              return;
-            }
             setUser(username);
             setPage("user-dashboard");
           }} />

@@ -5,24 +5,34 @@ function UserRequest({ onRequest, switchToLogin }) {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!username.trim() || !password) {
       setMessage('Please enter username and password');
       return;
     }
-    // Store request in localStorage
-    const requests = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-    if (requests.find(u => u.username === username)) {
-      setMessage('Request already submitted.');
-      return;
+    setLoading(true);
+    setMessage("");
+    try {
+      const res = await fetch("https://grocery-tracker-be.onrender.com/api/register", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.status === 201) {
+        setMessage('Request submitted! Wait for admin approval.');
+        setUsername('');
+        setPassword('');
+        if (onRequest) onRequest();
+      } else {
+        const err = await res.json();
+        setMessage(err.error || 'Registration failed');
+      }
+    } catch (e) {
+      setMessage('Network error');
     }
-    requests.push({ username, password });
-    localStorage.setItem('pendingUsers', JSON.stringify(requests));
-    setMessage('Request submitted! Wait for admin approval.');
-    setUsername('');
-    setPassword('');
-    if (onRequest) onRequest();
+    setLoading(false);
   };
 
   return (
@@ -41,7 +51,7 @@ function UserRequest({ onRequest, switchToLogin }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Request Access</button>
+        <button type="submit" disabled={loading}>{loading ? 'Requesting...' : 'Request Access'}</button>
       </form>
       {message && <div style={{ color: 'green', marginTop: 10 }}>{message}</div>}
       <button style={{ marginTop: 10 }} onClick={switchToLogin}>Back to Login</button>
