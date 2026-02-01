@@ -1,5 +1,26 @@
 
 import { useState, useEffect } from "react";
+// Health endpoint for waking up Render server
+const HEALTH_URL = "https://grocery-tracker-be.onrender.com/health";
+  const [serverStatus, setServerStatus] = useState("");
+  const [wakingUp, setWakingUp] = useState(false);
+
+  // Wake up server handler
+  const wakeUpServer = async () => {
+    setWakingUp(true);
+    setServerStatus("");
+    try {
+      const res = await fetch(HEALTH_URL);
+      if (res.ok) {
+        setServerStatus("Server is awake! You can now log in.");
+      } else {
+        setServerStatus("Server did not respond. Try again in a few seconds.");
+      }
+    } catch {
+      setServerStatus("Server did not respond. Try again in a few seconds.");
+    }
+    setWakingUp(false);
+  };
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import GroceryForm from "./components/GroceryForm";
 import GroceryDashboard from "./components/GroceryDashboard";
@@ -10,7 +31,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import "./App.css";
 import "./Login.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "/api";
+const API_URL = "https://grocery-tracker-be.onrender.com/api";
 
 
 function App() {
@@ -168,6 +189,12 @@ function App() {
           <div style={{ textAlign: 'center', marginTop: 20 }}>
             <button onClick={() => setPage("request")}>Request New User Access</button>
             <button style={{ marginLeft: 10 }} onClick={() => setPage("admin-login")}>Admin Login</button>
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 30 }}>
+            <button onClick={wakeUpServer} disabled={wakingUp}>
+              {wakingUp ? "Waking up server..." : "Wake Up Server"}
+            </button>
+            {serverStatus && <div style={{ marginTop: 10, color: 'green' }}>{serverStatus}</div>}
           </div>
         </div>
       );
