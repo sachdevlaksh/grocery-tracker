@@ -33,7 +33,12 @@ function App() {
     try {
       const res = await fetch(HEALTH_URL);
       if (res.ok) {
-        setServerStatus("Server is awake! You can now log in.");
+        const data = await res.json();
+        if (data && data.status === "ok") {
+          setServerStatus("Server is awake! You can now log in.");
+        } else {
+          setServerStatus("Server responded, but not healthy. Try again in a few seconds.");
+        }
       } else {
         setServerStatus("Server did not respond. Try again in a few seconds.");
       }
