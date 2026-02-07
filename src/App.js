@@ -1,9 +1,30 @@
 
 import { useState, useEffect } from "react";
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
+import GroceryForm from "./components/GroceryForm";
+import GroceryDashboard from "./components/GroceryDashboard";
+import Login from "./components/Login";
+import UserRequest from "./components/UserRequest";
+import AdminLogin from "./components/AdminLogin";
+import AdminDashboard from "./components/AdminDashboard";
+import "./App.css";
+import "./Login.css";
+
 // Health endpoint for waking up Render server
 const HEALTH_URL = "https://grocery-tracker-be.onrender.com/health";
+const API_URL = "https://grocery-tracker-be.onrender.com/api";
+
+
+
+function App() {
   const [serverStatus, setServerStatus] = useState("");
   const [wakingUp, setWakingUp] = useState(false);
+  const [page, setPage] = useState("login"); // login, request, admin-login, admin-dashboard, user-dashboard
+  const [user, setUser] = useState("");
+  const [groceries, setGroceries] = useState([]);
+  const [useLocal, setUseLocal] = useState(false);
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [editingGrocery, setEditingGrocery] = useState(null);
 
   // Wake up server handler
   const wakeUpServer = async () => {
@@ -21,26 +42,6 @@ const HEALTH_URL = "https://grocery-tracker-be.onrender.com/health";
     }
     setWakingUp(false);
   };
-import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
-import GroceryForm from "./components/GroceryForm";
-import GroceryDashboard from "./components/GroceryDashboard";
-import Login from "./components/Login";
-import UserRequest from "./components/UserRequest";
-import AdminLogin from "./components/AdminLogin";
-import AdminDashboard from "./components/AdminDashboard";
-import "./App.css";
-import "./Login.css";
-
-const API_URL = "https://grocery-tracker-be.onrender.com/api";
-
-
-function App() {
-  const [page, setPage] = useState("login"); // login, request, admin-login, admin-dashboard, user-dashboard
-  const [user, setUser] = useState("");
-  const [groceries, setGroceries] = useState([]);
-  const [useLocal, setUseLocal] = useState(false);
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [editingGrocery, setEditingGrocery] = useState(null);
 
     // Fetch groceries from backend or localStorage
     useEffect(() => {
