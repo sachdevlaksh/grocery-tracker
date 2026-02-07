@@ -31,19 +31,19 @@ function App() {
     setWakingUp(true);
     setServerStatus("");
     try {
-      const res = await fetch(HEALTH_URL);
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.status === "ok") {
-          setServerStatus("Server is awake! You can now log in.");
-        } else {
-          setServerStatus("Server responded, but not healthy. Try again in a few seconds.");
-        }
-      } else {
-        setServerStatus("Server did not respond. Try again in a few seconds.");
-      }
-    } catch {
-      setServerStatus("Server did not respond. Try again in a few seconds.");
+      // Use no-cors mode to ping the server - the request still wakes the server
+      // even though we can't read the response due to CORS restrictions
+      await fetch(HEALTH_URL, {
+        method: "GET",
+        mode: "no-cors"
+      });
+      // With no-cors, we can't read the response, but the request was sent
+      // Wait a moment then assume success
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setServerStatus("Server pinged! It should be waking up. You can try logging in now.");
+    } catch (err) {
+      console.error("Wake up server error:", err);
+      setServerStatus("Could not reach server. Check your network connection.");
     }
     setWakingUp(false);
   };
