@@ -8,6 +8,7 @@ function GroceryDashboard({ groceries, onDelete, onEdit }) {
             <th>Grocery</th>
             <th>Category</th>
             <th>Subcategory</th>
+            <th>Qty</th>
             <th>Weight</th>
             <th>Price (₹)</th>
             <th>Purchase Date</th>
@@ -22,6 +23,7 @@ function GroceryDashboard({ groceries, onDelete, onEdit }) {
               <td>{item.name}</td>
               <td>{item.category}</td>
               <td>{item.subcategory}</td>
+              <td>{item.quantity}</td>
               <td>{item.weight}</td>
               <td>{item.price}</td>
               <td>{item.date}</td>

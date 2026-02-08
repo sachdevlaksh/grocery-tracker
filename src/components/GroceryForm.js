@@ -19,6 +19,7 @@ function GroceryForm({ addGrocery, editingGrocery, editGrocery, cancelEdit }) {
     name: "",
     category: "",
     subcategory: "",
+    quantity: "1",
     weight: "",
     price: "",
     date: getToday(),
@@ -36,6 +37,7 @@ function GroceryForm({ addGrocery, editingGrocery, editGrocery, cancelEdit }) {
         name: "",
         category: "",
         subcategory: "",
+        quantity: "1",
         weight: "",
         price: "",
         date: getToday(),
@@ -57,6 +59,13 @@ function GroceryForm({ addGrocery, editingGrocery, editGrocery, cancelEdit }) {
     // Required field: Category
     if (!form.category || form.category.trim() === "") {
       newErrors.category = "Category is required";
+    }
+
+    // Required field: Quantity (must be a valid positive integer)
+    if (!form.quantity || form.quantity.trim() === "") {
+      newErrors.quantity = "Quantity is required";
+    } else if (isNaN(parseInt(form.quantity)) || parseInt(form.quantity) < 1) {
+      newErrors.quantity = "Quantity must be a positive number";
     }
 
     // Required field: Price (must be a valid number)
@@ -101,6 +110,7 @@ function GroceryForm({ addGrocery, editingGrocery, editGrocery, cancelEdit }) {
       name: "",
       category: "",
       subcategory: "",
+      quantity: "1",
       weight: "",
       price: "",
       date: getToday(),
@@ -143,6 +153,18 @@ function GroceryForm({ addGrocery, editingGrocery, editGrocery, cancelEdit }) {
           value={form.subcategory}
           onChange={(e) => setForm({ ...form, subcategory: e.target.value })} 
         />
+      </div>
+
+      <div className="form-field">
+        <input 
+          type="number"
+          min="1"
+          placeholder="Quantity *" 
+          value={form.quantity}
+          style={inputStyle('quantity')}
+          onChange={(e) => setForm({ ...form, quantity: e.target.value })} 
+        />
+        {errors.quantity && <span className="error-text">{errors.quantity}</span>}
       </div>
 
       <div className="form-field">
