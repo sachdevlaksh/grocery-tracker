@@ -312,6 +312,77 @@ function App() {
     
     // Route: User dashboard (main application page with groceries and charts)
     if (user && page === "user-dashboard") {
+      // ============================================================================
+      // USER DASHBOARD DATA PREPARATION
+      // ============================================================================
+      
+      // FILTER: Get only groceries from the selected month
+      // Split selectedMonth (format: YYYY-MM) into year and month numbers
+      // Filter groceries where purchase date falls within that month/year
+      const filterGroceriesByMonth = (groceries, monthStr) => {
+        const [year, month] = monthStr.split('-').map(Number);
+        return groceries.filter((g) => {
+          const groceryDate = new Date(g.date);
+          return groceryDate.getFullYear() === year && (groceryDate.getMonth() + 1) === month;
+        });
+      };
+
+      // Apply month filter to get only current month's groceries
+      const filteredGroceries = filterGroceriesByMonth(groceries, selectedMonth);
+      
+      // CALCULATION: Total amount spent in selected month
+      const totalSpent = filteredGroceries.reduce((sum, g) => sum + Number(g.price), 0);
+      
+      // CALCULATION: Sum spending by category for pie chart
+      const spendByCategory = filteredGroceries.reduce((acc, g) => {
+        const category = g.category || "Uncategorized";
+        acc[category] = (acc[category] || 0) + Number(g.price);
+        return acc;
+      }, {});
+      
+      // CALCULATION: Sum spending by subcategory for pie chart
+      const spendBySubcategory = filteredGroceries.reduce((acc, g) => {
+        const subcategory = g.subcategory || "Uncategorized";
+        acc[subcategory] = (acc[subcategory] || 0) + Number(g.price);
+        return acc;
+      }, {});
+      
+      // TRANSFORMATION: Convert object to array format needed by Recharts library
+      // Format: [{name: "Vegetable", value: 250}, ...]
+      const categoryData = Object.entries(spendByCategory).map(([name, value]) => ({ name, value: Number(value) }));
+      const subcategoryData = Object.entries(spendBySubcategory).map(([name, value]) => ({ name, value: Number(value) }));
+      
+      // COLOR PALETTE: Define colors for pie chart segments (cycles through if more than 6 categories)
+      const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
+      
+      // ALERT LOGIC: Get today's date at midnight for expiry comparisons
+      const today = new Date(); 
+      today.setHours(0, 0, 0, 0);
+      
+      // ALERT LOGIC: Find all items that have already expired
+      // Check if expiry date is before today AND item is not marked as finished
+      const expiredItems = filteredGroceries.filter((g) => {
+        const expiryDate = new Date(g.expiry); 
+        expiryDate.setHours(0, 0, 0, 0);
+        return expiryDate < today && g.finished === "no";
+      });
+      
+      // ALERT LOGIC: Find items close to expiring (within 7 days)
+      // Calculate days until expiry, show only items with 1-7 days left
+      const closToExpireItems = filteredGroceries.filter((g) => {
+        const expiryDate = new Date(g.expiry); 
+        expiryDate.setHours(0, 0, 0, 0);
+        const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+        return daysUntilExpiry > 0 && daysUntilExpiry <= 7 && g.finished === "no";
+      });
+      
+      // SORTING: Sort groceries by purchase date (ascending or descending based on user preference)
+      const sortedGroceries = [...filteredGroceries].sort((a, b) =>
+        sortOrder === "desc"
+          ? new Date(b.date) - new Date(a.date) // Newest first
+          : new Date(a.date) - new Date(b.date)  // Oldest first
+      );
+
       return (
         <div className="app">
           {/* ================================================================= */}

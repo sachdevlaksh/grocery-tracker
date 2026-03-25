@@ -278,11 +278,16 @@ function GroceryForm({ addGrocery, editingGrocery, editGrocery, cancelEdit }) {
       {/* BUTTONS: Submit or Cancel - Different based on add vs edit mode */}
       {editingGrocery ? (
         <>
-          <button type="submit">Update</button>    {/* Update button when editing */}
-          <button type="button" onClick={cancelEdit}>Cancel</button> {/* Cancel edit mode */}
+          {/* Update button when editing */}
+          <button type="submit">Update</button>
+          {/* Cancel edit mode */}
+          <button type="button" onClick={cancelEdit}>Cancel</button>
         </>
       ) : (
-        <button type="submit">Add</button> {/* Add button for new items */}
+        <>
+          {/* Add button for new items */}
+          <button type="submit">Add</button>
+        </>
       )}
     </form>
   );
